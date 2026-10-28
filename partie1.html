@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Révisions Terminale MCV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout : sommaire en "étiquettes de rayon" → exercice en carte unique → note rendue sous forme de ticket de caisse */
+:root{
+  --bg:#EEF2F0; --surface:#FFFFFF; --sunk:#E2E8E5; --ink:#132019; --muted:#56665E; --line:#C9D3CE;
+  --accent:#0E6B58; --accent-ink:#FFFFFF; --tag:#FFCC2E; --tag-ink:#1C1A08;
+  --good:#16834A; --good-bg:#DDF2E5; --bad:#C2372C; --bad-bg:#FBE3E0;
+  --p1:#0E6B58; --p2:#B5531B; --p3:#4F46B5; --p4:#A0247A; --p5:#2F7BB8; --p6:#7A6A10; --p7:#C2372C;
+  --f-display:"Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Courier New", monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1412; --surface:#17201C; --sunk:#202B26; --ink:#E6EEEA; --muted:#97A9A0; --line:#2F3D37;
+  --accent:#4CC1A6; --accent-ink:#06120E; --tag:#FFD54A; --tag-ink:#1C1A08;
+  --good:#4CC27E; --good-bg:#16301F; --bad:#F06A5E; --bad-bg:#3A1A17;
+  --p1:#4CC1A6; --p2:#F0915A; --p3:#9C95F5; --p4:#E07BC3; --p5:#6DB4EC; --p6:#D6C14E; --p7:#F06A5E;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1412; --surface:#17201C; --sunk:#202B26; --ink:#E6EEEA; --muted:#97A9A0; --line:#2F3D37;
+  --accent:#4CC1A6; --accent-ink:#06120E; --tag:#FFD54A; --tag-ink:#1C1A08;
+  --good:#4CC27E; --good-bg:#16301F; --bad:#F06A5E; --bad-bg:#3A1A17;
+  --p1:#4CC1A6; --p2:#F0915A; --p3:#9C95F5; --p4:#E07BC3; --p5:#6DB4EC; --p6:#D6C14E; --p7:#F06A5E;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+button{font:inherit;color:inherit}
+button:focus-visible, select:focus-visible{outline:3px solid var(--tag);outline-offset:2px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- Sommaire ---------- */
+.hero{display:grid;gap:14px;margin-bottom:28px}
+.hero h1{font-size:clamp(34px,7vw,58px);font-weight:800;letter-spacing:-.02em}
+.hero h1 span{background:var(--tag);color:var(--tag-ink);padding:0 .18em;border-radius:4px}
+.hero p{margin:0;max-width:62ch;color:var(--muted)}
+.stats{display:flex;flex-wrap:wrap;gap:10px 24px;font-family:var(--f-mono);font-size:14px}
+.stats b{font-size:20px;font-family:var(--f-display)}
+.howto{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--f-mono);font-size:12px;padding:4px 10px;border:1px solid var(--line);border-radius:99px;color:var(--muted);background:var(--surface)}
+.bloc{margin-top:34px}
+.bloc h2{font-size:22px;font-weight:700;margin-bottom:4px}
+.bloc .eyebrow{margin-bottom:12px;display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{position:relative;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 14px 20px;cursor:pointer;display:grid;gap:8px;transition:transform .12s, border-color .12s}
+.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:0 3px 3px 0;background:var(--line)}
+.card.done::before{background:var(--accent)}
+.card .num{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.card h3{font-size:18px;font-weight:700}
+.card .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.price{font-family:var(--f-mono);font-weight:600;font-size:13px;background:var(--tag);color:var(--tag-ink);padding:2px 8px;border-radius:3px}
+.price.none{background:var(--sunk);color:var(--muted)}
+.final{margin-top:34px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;background:var(--ink);color:var(--bg);border-radius:var(--r);padding:20px}
+.final h2{font-size:24px}
+.final p{margin:4px 0 0;opacity:.8;font-size:15px}
+
+/* ---------- Boutons ---------- */
+.btn{border:0;border-radius:8px;padding:11px 18px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.tag{background:var(--tag);color:var(--tag-ink)}
+.back{background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 0;font-size:15px}
+.back:hover{color:var(--ink)}
+
+/* ---------- Chapitre ---------- */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.bar{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden;margin-bottom:22px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+details.memo{background:var(--surface);border:1px dashed var(--accent);border-radius:var(--r);padding:12px 16px;margin-bottom:18px}
+details.memo summary{cursor:pointer;font-weight:700;color:var(--accent)}
+details.memo ul{margin:10px 0 2px;padding-left:20px;display:grid;gap:6px}
+details.memo li{max-width:70ch}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px 20px;display:grid;gap:18px}
+.ex-head{display:grid;gap:6px}
+.ex-type{justify-self:start;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:var(--tag);color:var(--tag-ink);padding:3px 8px;border-radius:3px}
+.ex-q{font-size:20px;font-weight:700;font-family:var(--f-display);line-height:1.25}
+.ex-hint{font-size:14px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+
+/* QCM / VF */
+.opts{display:grid;gap:10px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:12px 14px;cursor:pointer;display:flex;gap:12px;align-items:flex-start}
+.opt .k{font-family:var(--f-mono);font-weight:600;color:var(--muted);min-width:1.2em}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--sunk)}
+.opt.ok{border-color:var(--good);background:var(--good-bg)}
+.opt.ko{border-color:var(--bad);background:var(--bad-bg)}
+.opt:disabled{cursor:default}
+.vf{grid-template-columns:1fr 1fr}
+.vf .opt{justify-content:center;font-weight:700;font-size:18px}
+
+/* Relier */
+.match{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr);gap:10px 0}
+.match .col{display:grid;gap:10px;align-content:start}
+.match svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.mi{position:relative;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:15px;line-height:1.35;min-height:46px}
+.mi::after{content:"";position:absolute;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--surface);border:2px solid var(--muted)}
+.col.l .mi::after{right:-6px}
+.col.r .mi::after{left:-6px}
+.mi.sel{border-color:var(--tag);box-shadow:0 0 0 3px var(--tag)}
+.mi.paired::after{background:var(--pc);border-color:var(--pc)}
+.mi.paired{border-color:var(--pc)}
+.mi.ok{background:var(--good-bg)} .mi.ko{background:var(--bad-bg)}
+
+/* Ordre */
+.order{display:grid;gap:8px;list-style:none;margin:0;padding:0;counter-reset:o}
+.order li{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 8px 8px 12px;counter-increment:o}
+.order li::before{content:counter(o);font-family:var(--f-mono);font-weight:600;color:var(--muted);min-width:1.4em}
+.order li span{flex:1;min-width:0}
+.order li.ok{border-color:var(--good);background:var(--good-bg)}
+.order li.ko{border-color:var(--bad);background:var(--bad-bg)}
+.mv{display:flex;gap:4px}
+.mv button{width:38px;height:38px;border-radius:6px;border:1px solid var(--line);background:var(--sunk);cursor:pointer;font-size:16px}
+.mv button:disabled{opacity:.3;cursor:default}
+
+/* Classer */
+.cls{display:grid;gap:10px}
+.cls-row{display:grid;gap:8px;border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.cls-row.ok{border-color:var(--good);background:var(--good-bg)}
+.cls-row.ko{border-color:var(--bad);background:var(--bad-bg)}
+.cls-row .it{font-weight:700}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1.5px solid var(--line);background:var(--bg);border-radius:99px;padding:5px 12px;font-size:14px;cursor:pointer}
+.seg button.sel{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg button:disabled{cursor:default}
+.fix{font-size:14px;color:var(--bad);font-weight:700}
+
+/* Trous */
+.trous{font-size:18px;line-height:2.3}
+.trous select{font:inherit;font-size:16px;padding:3px 6px;border-radius:6px;border:1.5px solid var(--accent);background:var(--surface);color:var(--ink);max-width:100%}
+.trous select.ok{border-color:var(--good);background:var(--good-bg)}
+.trous select.ko{border-color:var(--bad);background:var(--bad-bg)}
+.trous .sol{font-size:14px;color:var(--good);font-weight:700;margin-left:4px}
+
+/* Retour */
+.fb{border-radius:8px;padding:14px 16px;display:grid;gap:6px}
+.fb.ok{background:var(--good-bg);border-left:5px solid var(--good)}
+.fb.mid{background:var(--sunk);border-left:5px solid var(--tag)}
+.fb.ko{background:var(--bad-bg);border-left:5px solid var(--bad)}
+.fb strong{font-family:var(--f-display);font-size:18px}
+.fb ol{margin:4px 0 0;padding-left:22px}
+
+/* Ticket */
+.ticket{max-width:420px;margin:0 auto;background:var(--surface);color:var(--ink);font-family:var(--f-mono);font-size:14px;padding:26px 22px 30px;position:relative;
+  -webkit-mask: radial-gradient(circle 7px at 50% 0,#0000 98%,#000) 0 0/18px 51% repeat-x, radial-gradient(circle 7px at 50% 100%,#0000 98%,#000) 0 100%/18px 51% repeat-x;
+  mask: radial-gradient(circle 7px at 50% 0,#0000 98%,#000) 0 0/18px 51% repeat-x, radial-gradient(circle 7px at 50% 100%,#0000 98%,#000) 0 100%/18px 51% repeat-x}
+.ticket .c{text-align:center}
+.ticket hr{border:0;border-top:1.5px dashed var(--line);margin:12px 0}
+.ticket .row{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+.ticket .row span:first-child{min-width:0}
+.ticket .tot{font-size:22px;font-weight:600}
+.ticket .msg{text-align:center;margin-top:12px;font-family:var(--f-body);font-size:15px}
+.res-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
+
+@media (max-width:520px){
+  .ex{padding:18px 14px}
+  .ex-q{font-size:18px}
+  .match{grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr)}
+  .mi{font-size:14px;padding:8px 9px}
+  .vf{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ================= CONTENU ================= */
+const Q=(q,o,ex)=>({t:"qcm",q,o,ex});
+const VF=(q,a,ex)=>({t:"vf",q,a,ex});
+const M=(q,p,ex)=>({t:"match",q,p,ex});
+const O=(q,items,ex)=>({t:"order",q,items,ex});
+const T=(q,txt,ex)=>({t:"trous",q,txt,ex});
+const C=(q,cats,items,ex)=>({t:"classer",q,cats,items,ex});
+
+const BLOCS=[
+ {id:"env",name:"Connaître son environnement commercial",sub:"L'entreprise, ses clients, ses canaux"},
+ {id:"vente",name:"Accueillir, conseiller, vendre",sub:"De la prise de contact à l'e-mail client"},
+ {id:"offre",name:"Gérer et mettre en valeur l'offre",sub:"Réception, stocks, merchandising"}
+];
+
+const CH=[
+/* ---------- 1 ---------- */
+{bloc:"env",title:"La veille commerciale",
+memo:[
+"La veille commerciale, c'est surveiller en permanence l'environnement de l'entreprise pour anticiper et réagir.",
+"5 types de veille : concurrentielle (prix et offres des concurrents), commerciale (clients, fournisseurs), technologique (innovations), juridique / réglementaire (lois), sociétale / environnementale (tendances, modes de consommation).",
+"Étapes : 1. définir ce qu'on cherche → 2. collecter → 3. trier et analyser → 4. diffuser à l'équipe → 5. exploiter (agir).",
+"Sources : relevés de prix, sites et réseaux sociaux des concurrents, avis clients, presse professionnelle (LSA…), salons, fournisseurs."],
+ex:[
+Q("La veille commerciale consiste à…",["Surveiller l'environnement de l'entreprise pour anticiper et réagir","Surveiller les vendeurs pendant leur travail","Contrôler les caisses en fin de journée","Ranger la réserve chaque soir"],"La veille sert à collecter des informations sur l'extérieur (concurrents, clients, lois, innovations…) pour prendre de bonnes décisions."),
+M("Relie chaque type de veille à un exemple.",[["Concurrentielle","Relever les prix du magasin d'en face"],["Technologique","Découvrir les nouvelles caisses automatiques"],["Juridique","Une nouvelle loi change les dates des soldes"],["Sociétale","Les clients veulent des produits locaux et durables"],["Commerciale","Analyser les attentes et les avis des clients"]],"Chaque veille observe un domaine précis de l'environnement."),
+O("Remets les étapes de la veille dans l'ordre.",["Définir ce que l'on recherche","Collecter les informations","Trier et analyser","Diffuser à l'équipe","Exploiter : prendre des décisions"],"On ne collecte pas au hasard : on définit d'abord le besoin, et on finit par agir."),
+VF("Un relevé de prix chez un concurrent est un outil de veille concurrentielle.",true,"Oui : on compare ses prix à ceux des concurrents."),
+Q("Laquelle n'est PAS une source de veille commerciale ?",["Le planning des pauses du personnel","Les avis Google d'un concurrent","Un salon professionnel","La presse professionnelle (LSA)"],"Le planning des pauses est une information interne d'organisation, pas une information sur l'environnement."),
+T("Complète le texte.","Le magasin d'en face a baissé ses prix : c'est une information de veille {{concurrentielle|technologique|juridique}}. Le manager la {{diffuse|cache|supprime}} à l'équipe pour pouvoir {{réagir|partir en pause|fermer le rayon}}.","Une information de veille ne sert à rien si elle n'est pas partagée et exploitée.")
+]},
+/* ---------- 2 ---------- */
+{bloc:"env",title:"L'organigramme",
+memo:[
+"L'organigramme est un schéma qui représente l'organisation de l'entreprise : les postes, les services et les liens entre eux.",
+"Lien hiérarchique : qui donne les ordres à qui (du haut vers le bas).",
+"Lien fonctionnel : collaboration ou conseil entre services, sans autorité.",
+"Exemple en magasin : Directeur → Directeur adjoint → Managers de rayon → Conseillers de vente, employés commerciaux, hôtes de caisse.",
+"Il sert à savoir à qui s'adresser, à comprendre son rôle et à intégrer les nouveaux salariés."],
+ex:[
+Q("Un organigramme sert à…",["Représenter l'organisation et les liens hiérarchiques","Calculer le chiffre d'affaires","Implanter les produits en rayon","Planifier les livraisons"],"C'est la « carte » de l'entreprise : qui fait quoi et qui dépend de qui."),
+O("Classe ces postes du plus haut au plus bas dans la hiérarchie.",["Directeur de magasin","Directeur adjoint","Manager de rayon","Conseiller de vente"],"Le conseiller de vente dépend du manager de rayon, qui dépend de la direction."),
+M("Relie chaque poste à sa mission principale.",[["Directeur","Fixe les objectifs et dirige tout le magasin"],["Manager de rayon","Gère une équipe, les commandes et les résultats d'un rayon"],["Conseiller de vente","Accueille, conseille et vend"],["Employé commercial","Réceptionne, met en rayon et fait le facing"],["Hôte(sse) de caisse","Encaisse et prend congé du client"]],null),
+VF("Un lien fonctionnel signifie qu'une personne donne des ordres à une autre.",false,"Faux : donner des ordres, c'est un lien hiérarchique. Le lien fonctionnel est un lien de collaboration ou de conseil."),
+Q("Tu es conseiller de vente et tu constates une rupture de stock. À qui le signales-tu en premier ?",["À ton manager de rayon","Au directeur régional","Au client","Au fournisseur directement"],"On respecte la hiérarchie : le supérieur direct est le manager de rayon.")
+]},
+/* ---------- 3 ---------- */
+{bloc:"env",title:"Les 3 zones de chalandise",
+memo:[
+"La zone de chalandise est la zone géographique d'où viennent les clients d'un point de vente.",
+"Zone primaire : la plus proche (environ 5 à 10 min), 60 à 80 % des clients.",
+"Zone secondaire : 10 à 20 min, 15 à 25 % des clients.",
+"Zone tertiaire : 20 à 30 min et plus, clients occasionnels, 5 à 15 %.",
+"On la mesure en temps de trajet (courbes isochrones) ou en distance (courbes isométriques).",
+"Elle dépend de la taille du magasin, de la concurrence, des accès (parking, transports) et de l'offre."],
+ex:[
+Q("La zone de chalandise, c'est…",["La zone géographique d'où viennent les clients du magasin","La zone de stockage de la réserve","L'espace autour des caisses","Le parking réservé au personnel"],null),
+C("Dans quelle zone se trouve chaque client ?",["Primaire","Secondaire","Tertiaire"],[
+["Mme Diallo habite à 5 min à pied",0],["M. Leroy vient de la ville voisine en 15 min de voiture",1],["Un touriste à 45 min passe une fois par an",2],["Un étudiant vit dans la rue d'à côté",0],["Une famille à 30 min vient seulement pour les soldes",2],["Une cliente à 12 min en bus",1]],"Plus le client est loin, moins il vient souvent."),
+M("Relie chaque zone à sa description.",[["Primaire","La plus proche, la majorité des clients"],["Secondaire","10 à 20 min, clients réguliers mais moins fréquents"],["Tertiaire","La plus éloignée, clients occasionnels"]],null),
+VF("Une courbe isochrone relie les points situés à un même temps de trajet du magasin.",true,"Iso = même, chrono = temps."),
+T("Complète.","La zone {{primaire|secondaire|tertiaire}} représente en général {{60 à 80 %|5 à 15 %|100 %}} de la clientèle d'un magasin.",null),
+Q("Quel élément peut AGRANDIR la zone de chalandise ?",["Un grand parking et un accès facile","Un concurrent qui ouvre juste à côté","Des travaux qui bloquent la route","La suppression d'une ligne de bus"],"Plus le magasin est facile d'accès et attractif, plus les clients acceptent de venir de loin.")
+]},
+/* ---------- 4 ---------- */
+{bloc:"env",title:"UC physique, virtuelle et phygitale",
+memo:[
+"Unité commerciale (UC) : lieu, physique ou virtuel, où l'offre est présentée et où le client peut acheter.",
+"Physique : magasin, boutique, supermarché. On voit, touche, essaie ; conseil en face à face.",
+"Virtuelle : site e-commerce, application, marketplace. Achat 24 h/24, de partout.",
+"Phygitale : mélange du physique et du digital : bornes interactives, tablette du vendeur, étiquettes électroniques, QR codes, miroir connecté, click & collect, caisses automatiques."],
+ex:[
+C("Classe chaque exemple.",["Physique","Virtuelle","Phygitale"],[
+["Petite boutique de centre-ville sans site internet",0],["Le site Zalando",1],["Borne de commande chez McDonald's",2],["L'application Vinted",1],["Vendeur qui vérifie le stock sur sa tablette en rayon",2],["Marché du dimanche",0],["Miroir connecté dans une cabine d'essayage",2],["Amazon",1]],null),
+Q("Le phygital, c'est…",["Intégrer des outils numériques dans le point de vente physique","Vendre uniquement sur internet","Un magasin sans aucun vendeur","Une technique de traitement des réclamations"],"Phygital = PHYsique + diGITAL."),
+M("Relie chaque avantage à l'UC qui l'offre le mieux.",[["Toucher et essayer le produit avec un vendeur","Physique"],["Acheter 24 h/24 depuis son canapé","Virtuelle"],["Voir le stock en ligne sur une borne du magasin","Phygitale"]],null),
+VF("Une marketplace comme Cdiscount est une unité commerciale virtuelle.",true,null),
+VF("Le click & collect (commande en ligne, retrait en magasin) mélange physique et digital.",true,"Il relie le site internet et le magasin : c'est un dispositif phygital.")
+]},
+/* ---------- 5 ---------- */
+{bloc:"env",title:"Canaux de vente et canaux de contact",
+memo:[
+"Canal de vente : le moyen par lequel le client ACHÈTE : magasin, site web, application, téléphone, catalogue (VPC), marketplace, réseaux sociaux (social commerce), drive, vente à domicile.",
+"Canal de contact : le moyen par lequel le client et l'entreprise ÉCHANGENT : face à face, téléphone, e-mail, chat ou chatbot, SMS, réseaux sociaux, courrier, visio.",
+"Un même outil peut être les deux (réseaux sociaux, téléphone…).",
+"Retiens : je contacte ≠ j'achète."],
+ex:[
+C("Canal de vente ou canal de contact ?",["Canal de vente","Canal de contact"],[
+["Site e-commerce avec panier",0],["Chatbot pour poser une question",1],["Magasin physique",0],["E-mail de réclamation",1],["Drive",0],["SMS de rappel de rendez-vous",1],["Marketplace",0],["Courrier d'information",1]],null),
+Q("Une cliente pose une question sur Instagram, puis achète directement via la boutique Instagram. Instagram a été…",["À la fois canal de contact et canal de vente","Uniquement un canal de contact","Uniquement un canal de vente","Ni l'un ni l'autre"],"Elle a échangé (contact) puis acheté (vente) au même endroit."),
+M("Relie chaque canal de contact à son principal avantage.",[["Face à face","Relation humaine, on voit les réactions"],["Téléphone","Réponse immédiate à distance"],["E-mail","Trace écrite, envoi de documents"],["Chat en ligne","Aide rapide pendant la navigation"],["Réseaux sociaux","Proximité et visibilité de la marque"]],null),
+VF("Le drive est un canal de vente.",true,"Le client y commande et y paie : c'est bien un moyen d'acheter."),
+T("Complète.","Quand le client {{achète|se renseigne seulement|se plaint}} par ce moyen, c'est un canal de vente. Quand il {{échange|paie|stocke}} avec l'entreprise, c'est un canal de contact.",null)
+]},
+/* ---------- 6 ---------- */
+{bloc:"env",title:"Omnicanalité et parcours client",
+memo:[
+"Parcours client : toutes les étapes vécues par le client, du besoin à l'avis après achat.",
+"Point de contact : chaque moment où le client rencontre l'enseigne (pub, site, vendeur, caisse, SAV…).",
+"Multicanal : plusieurs canaux qui fonctionnent séparément.",
+"Cross-canal : le client passe d'un canal à l'autre (commande en ligne, retrait en magasin).",
+"Omnicanal : tous les canaux sont reliés et partagent les mêmes données ; le parcours est fluide, sans rupture (même compte fidélité, retour possible partout).",
+"Webrooming (ROPO) : se renseigner en ligne, acheter en magasin. Showrooming : essayer en magasin, acheter en ligne."],
+ex:[
+O("Remets les étapes du parcours client dans l'ordre.",["Le client ressent un besoin","Il recherche des informations","Il compare les offres","Il achète","Il reçoit ou retire son produit","Il l'utilise (SAV si besoin)","Il donne son avis et revient (fidélisation)"],null),
+M("Relie chaque stratégie à sa définition.",[["Multicanal","Plusieurs canaux indépendants, sans lien entre eux"],["Cross-canal","Le client passe d'un canal à un autre pendant son achat"],["Omnicanal","Tous les canaux intégrés, une expérience continue"]],null),
+Q("Inès regarde des baskets sur le site, les essaie en magasin, puis les commande sur l'appli avec sa carte fidélité qui retrouve tout son historique. C'est…",["Une stratégie omnicanale","Une stratégie monocanale","Une stratégie multicanale","Aucune stratégie"],"Tous les canaux partagent ses données : son parcours est continu."),
+M("Relie chaque comportement à sa définition.",[["Webrooming (ROPO)","Se renseigne en ligne, achète en magasin"],["Showrooming","Essaie en magasin, achète en ligne"]],null),
+VF("Dans une stratégie omnicanale, un produit acheté sur le site peut être rendu en magasin.",true,null),
+Q("Un point de contact, c'est…",["Chaque moment où le client est en relation avec l'enseigne","Le moment où le vendeur touche le produit","Uniquement la caisse","Le parking du magasin"],null)
+]},
+/* ---------- 7 ---------- */
+{bloc:"vente",title:"Prise de contact : 4×20, CROC, CERC",
+memo:[
+"Règle des 4×20 (la première impression) : les 20 premières secondes, les 20 premiers mots, les 20 premiers gestes, les 20 cm du visage (sourire, regard).",
+"SBAM : Sourire, Bonjour, Au revoir, Merci.",
+"CROC = appel SORTANT (c'est moi qui appelle) : Contact (je me présente, je vérifie l'interlocuteur) → Raison de l'appel → Objectif (rendez-vous, vente) → Conclusion (je résume, je remercie, je prends congé).",
+"CERC = appel ENTRANT / service client (le client appelle) : Contact (accueil chaleureux) → Écoute active → Reformulation → Conclusion (réponse ou solution, prise de congé)."],
+ex:[
+T("Complète la règle des 4×20.","Les 20 premières {{secondes|minutes|heures}}, les 20 premiers {{mots|euros|clients}}, les 20 premiers {{gestes|produits|achats}} et les 20 {{centimètres du visage|mètres du rayon|kilos de marchandise}}.","Tout se joue dans les premiers instants : sourire, regard, posture, premiers mots."),
+O("Remets la méthode CROC dans l'ordre.",["Contact : je me présente et vérifie l'interlocuteur","Raison : j'explique pourquoi j'appelle","Objectif : je propose (rendez-vous, offre…)","Conclusion : je résume, remercie et prends congé"],null),
+O("Remets la méthode CERC dans l'ordre.",["Contact : j'accueille chaleureusement","Écoute : je laisse le client s'exprimer","Reformulation : je vérifie que j'ai compris","Conclusion : j'apporte la réponse et je prends congé"],null),
+M("Appel sortant : relie chaque phrase à son étape CROC.",[["« Bonjour, Sami Benali, conseiller chez Darty. Je suis bien avec Mme Martin ? »","Contact"],["« Je vous appelle car votre garantie arrive à échéance. »","Raison"],["« Je vous propose un rendez-vous jeudi pour vous présenter l'extension. »","Objectif"],["« Donc jeudi 14 h, c'est noté. Merci et bonne journée ! »","Conclusion"]],null),
+Q("Un client appelle le magasin pour une question sur sa commande. Quelle méthode utilises-tu ?",["CERC","CROC","AIDA","SONCAS"],"C'est un appel entrant : on applique CERC. CROC sert quand c'est toi qui appelles."),
+VF("On utilise la méthode CROC quand c'est le vendeur qui passe l'appel.",true,null),
+Q("Un client entre pendant que tu fais de la mise en rayon. Que fais-tu ?",["Je m'interromps, je le regarde, je souris et je le salue","Je termine mon rayon d'abord","Je l'ignore s'il ne me demande rien","Je lui dis d'attendre un collègue"],"Le client est toujours prioritaire sur les tâches de rayon.")
+]},
+/* ---------- 8 ---------- */
+{bloc:"vente",title:"Les étapes de la vente",
+memo:[
+"1. Accueil / prise de contact (4×20, SBAM).",
+"2. Découverte des besoins (questions, écoute, CQQCOQP).",
+"3. Reformulation : vérifier qu'on a bien compris.",
+"4. Proposition d'une solution et argumentation (CAP).",
+"5. Traitement des objections.",
+"6. Conclusion de la vente.",
+"7. Vente additionnelle (au rebond) : produit complémentaire ou montée en gamme.",
+"8. Accompagnement à l'encaissement : carte fidélité, mode de paiement, conditions de retour, prise de congé."],
+ex:[
+O("Remets les étapes de la vente dans l'ordre.",["Accueil","Découverte des besoins","Reformulation","Proposition d'une solution (CAP)","Traitement des objections","Conclusion de la vente","Vente additionnelle","Accompagnement à l'encaissement"],null),
+M("Relie chaque phrase du vendeur à son étape.",[["« Bonjour, bienvenue ! Je peux vous renseigner ? »","Accueil"],["« Pour quelle pièce et quelle surface ? »","Découverte des besoins"],["« Si je comprends bien, vous cherchez un aspirateur sans fil à moins de 200 € ? »","Reformulation"],["« Je comprends, comparons le prix à l'usage sur 5 ans. »","Traitement des objections"],["« Avec cet aspirateur, je vous conseille ce filtre de rechange. »","Vente additionnelle"],["« Avez-vous notre carte fidélité ? Je vous accompagne en caisse. »","Encaissement"]],null),
+Q("À quoi sert la reformulation ?",["Vérifier qu'on a compris le besoin et montrer au client qu'on l'a écouté","Répéter mot à mot pour gagner du temps","Convaincre d'acheter plus cher","Terminer la vente"],null),
+VF("On peut proposer une solution avant d'avoir découvert les besoins du client.",false,"Sans découverte, on propose au hasard : on risque de proposer un produit qui ne convient pas."),
+C("Vente additionnelle : produit complémentaire ou montée en gamme ?",["Complémentaire","Montée en gamme"],[
+["Une coque pour le smartphone acheté",0],["Le même smartphone avec plus de stockage",1],["Des piles pour un jouet",0],["Une télé 65 pouces au lieu de 55",1],["Du cirage pour des chaussures en cuir",0]],"Complémentaire = un produit en plus. Montée en gamme = un modèle supérieur à la place."),
+Q("Lors de l'accompagnement à l'encaissement, le vendeur…",["Propose la carte fidélité, rappelle les conditions de retour et prend congé","Laisse le client se débrouiller seul","Recommence la découverte des besoins","Traite de nouvelles objections"],null)
+]},
+/* ---------- 9 ---------- */
+{bloc:"vente",title:"Découvrir les besoins : CQQCOQP et questions",
+memo:[
+"Outils pour identifier les besoins : observer, questionner, écouter activement, reformuler.",
+"CQQCOQP : Combien ? Qui ? Quoi ? Comment ? Où ? Quand ? Pourquoi ?",
+"Question ouverte : réponse libre (« Comment allez-vous l'utiliser ? »). Idéale pour démarrer.",
+"Question fermée : oui / non. Pour confirmer.",
+"Question alternative : choix entre deux (« Plutôt noir ou blanc ? »).",
+"Question relais : relance (« C'est-à-dire ? »). Question miroir : on répète le dernier mot.",
+"Question suggestive (orientée) : elle pousse la réponse. À éviter en découverte."],
+ex:[
+M("Relie chaque question à sa lettre du CQQCOQP.",[["« Quel budget prévoyez-vous ? »","Combien ?"],["« C'est pour vous ou pour offrir ? »","Qui ?"],["« Quel type d'appareil cherchez-vous ? »","Quoi ?"],["« Comment allez-vous l'utiliser ? »","Comment ?"],["« Dans quelle pièce l'installerez-vous ? »","Où ?"],["« Pour quand en avez-vous besoin ? »","Quand ?"],["« Qu'est-ce qui vous fait changer d'appareil ? »","Pourquoi ?"]],null),
+M("Relie chaque question à son type.",[["« Pour quelle utilisation cherchez-vous ce téléphone ? »","Ouverte"],["« Avez-vous déjà un compte client ? »","Fermée"],["« Vous le préférez en noir ou en blanc ? »","Alternative"],["« C'est-à-dire ? »","Relais"],["« Vous ne voulez pas d'un produit bas de gamme, n'est-ce pas ? »","Suggestive"],["Client : « Je le veux léger. » Vendeur : « Léger ? »","Miroir"]],null),
+Q("Pour lancer la découverte des besoins, quelle question est la meilleure ?",["« Que recherchez-vous pour votre cuisine ? »","« Vous voulez ce modèle ? »","« C'est tout ? »","« Vous avez votre carte ? »"],"Une question ouverte laisse le client s'exprimer et révèle ses besoins."),
+VF("Une question fermée permet au client de s'exprimer longuement.",false,"Elle appelle un oui ou un non. Pour faire parler, on pose des questions ouvertes."),
+Q("L'écoute active, c'est…",["Montrer qu'on écoute (regard, hochements, reformulation) sans couper la parole","Préparer sa réponse pendant que le client parle","Écouter en continuant sa mise en rayon","Ne poser aucune question"],null)
+]},
+/* ---------- 10 ---------- */
+{bloc:"vente",title:"Mobiles, freins et SONCAS",
+memo:[
+"Besoin : un manque ressenti. Mobile : une raison qui pousse à acheter. Frein : une raison qui retient d'acheter.",
+"Mobiles : hédonistes (se faire plaisir), oblatifs (faire plaisir aux autres), d'auto-expression (s'affirmer, montrer qui on est).",
+"Freins : peurs (se tromper, panne, arnaque), inhibitions (gêne, culpabilité), prix ou budget, habitudes.",
+"SONCAS : Sécurité, Orgueil, Nouveauté, Confort, Argent, Sympathie (+ Environnement : SONCASE).",
+"Le vendeur repère le mobile pour choisir ses arguments, et lève les freins en rassurant."],
+ex:[
+T("Que veut dire SONCAS ?","S = {{Sécurité|Service|Solde}}, O = {{Orgueil|Offre|Option}}, N = {{Nouveauté|Nombre|Note}}, C = {{Confort|Client|Coût}}, A = {{Argent|Achat|Accueil}}, S = {{Sympathie|Stock|Sourire}}.",null),
+C("Quelle motivation SONCAS se cache derrière chaque phrase ?",["Sécurité","Orgueil","Nouveauté","Confort","Argent","Sympathie"],[
+["« Je veux une marque que tout le monde remarque. »",1],["« Il a bien une garantie de 5 ans ? »",0],["« C'est le tout dernier modèle sorti ? »",2],["« Il doit être simple à utiliser et silencieux. »",3],["« Il y a une promo ou un paiement en 4 fois ? »",4],["« Je reviens chez vous, votre vendeur est super. »",5]],null),
+C("Mobile ou frein ?",["Mobile","Frein"],[
+["« Je veux me faire plaisir. »",0],["« J'ai peur qu'il tombe en panne. »",1],["« C'est pour l'anniversaire de ma mère. »",0],["« Je n'ose pas, c'est trop pour moi. »",1],["« Je veux montrer que j'ai du style. »",0],["« C'est au-dessus de mon budget. »",1]],null),
+M("Relie chaque mobile à son exemple.",[["Hédoniste","« Je m'offre ce parfum, j'adore son odeur. »"],["Oblatif","« J'achète ce vélo pour faire plaisir à mon fils. »"],["Auto-expression","« Je porte cette marque pour montrer mes goûts. »"]],null),
+VF("Un frein est une raison qui pousse le client à acheter.",false,"C'est l'inverse : le frein retient le client. Ce qui pousse à acheter, c'est un mobile."),
+Q("Le client dit : « J'ai peur de ne pas savoir l'utiliser. » Que fais-tu ?",["Je le rassure : démonstration, tutoriel, SAV disponible","Je lui dis que ce n'est pas grave et je l'emmène en caisse","Je change de sujet","Je baisse le prix tout de suite"],"C'est un frein de type peur : on le lève en rassurant avec du concret.")
+]},
+/* ---------- 11 ---------- */
+{bloc:"vente",title:"Argumenter (CAP) et traiter les objections",
+memo:[
+"CAP : Caractéristique (ce qu'est le produit), Avantage (ce que ça apporte au client), Preuve (démonstration, avis, label, test).",
+"On choisit l'argument selon la motivation SONCAS du client.",
+"Objection : un doute ou une remarque du client. Elle peut être fondée (vraie), non fondée (fausse), un prétexte (excuse) ou de principe (réflexe « c'est cher »).",
+"Méthode : écouter sans couper → questionner / reformuler → répondre → vérifier que le doute est levé.",
+"Techniques : « Oui, mais… », boomerang (l'objection devient un argument), compensation (un avantage compense l'inconvénient), questionnement (« Cher par rapport à quoi ? »), référence (avis, témoignages), report (on y répond plus tard)."],
+ex:[
+C("Smartphone : Caractéristique, Avantage ou Preuve ?",["Caractéristique","Avantage","Preuve"],[
+["Batterie de 5 000 mAh",0],["Vous tenez toute la journée sans recharger",1],["Testé par un magazine : 2 jours d'autonomie",2],["Écran de 6,7 pouces",0],["Vos vidéos s'affichent en grand, c'est plus confortable",1],["Je vous fais une démonstration sur le modèle d'exposition",2]],"Caractéristique = technique. Avantage = bénéfice pour le client. Preuve = ce qui le démontre."),
+Q("Dans la méthode CAP, l'Avantage, c'est…",["Ce que la caractéristique apporte concrètement au client","Le prix réduit","La preuve du test","La marque du produit"],null),
+M("Relie chaque réponse du vendeur à la technique utilisée.",[["« Trop cher par rapport à quoi ? »","Questionnement"],["« Justement, ce poids le rend stable : il ne bougera pas. »","Boomerang"],["« Il est plus cher, mais il consomme 30 % d'électricité en moins. »","Compensation"],["« Regardez : 4,7/5 sur 2 000 avis clients. »","Référence"],["« J'y reviens dans un instant, voyons d'abord vos besoins. »","Report"]],null),
+Q("Le produit plaît visiblement au client, mais il dit : « Je vais réfléchir. » C'est souvent une objection…",["Prétexte","Fondée","Technique","Non fondée"],"C'est une excuse qui cache un vrai frein : on questionne pour le découvrir (« Qu'est-ce qui vous fait hésiter ? »)."),
+VF("Face à une objection, il faut couper la parole au client pour répondre vite.",false,"On écoute jusqu'au bout, on reformule, puis on répond."),
+O("Remets la méthode de traitement d'une objection dans l'ordre.",["Écouter sans interrompre","Questionner et reformuler","Répondre avec une technique adaptée","Vérifier que le doute est levé"],null)
+]},
+/* ---------- 12 ---------- */
+{bloc:"vente",title:"Gérer une réclamation : les 3 feux",
+memo:[
+"Une réclamation est l'expression d'une insatisfaction. Bien traitée, elle peut FIDÉLISER le client.",
+"Feu rouge : le client est en colère → je reste calme, je l'écoute sans l'interrompre, je le laisse « vider son sac ».",
+"Feu orange : il se calme → je questionne, je reformule, je montre de l'empathie et je m'excuse pour le désagrément.",
+"Feu vert : il est apaisé → je propose une solution (échange, réparation, avoir, remboursement), je vérifie son accord, je remercie et j'assure le suivi.",
+"À éviter : couper la parole, se justifier, accuser un collègue, dire « ce n'est pas moi »."],
+ex:[
+C("À quel feu correspond chaque action ?",["Rouge","Orange","Vert"],[
+["Laisser le client exprimer sa colère sans l'interrompre",0],["Rester calme et garder une posture ouverte",0],["« Si je comprends bien, l'appareil ne s'allume plus depuis lundi ? »",1],["« Je suis désolé pour ce désagrément. »",1],["« Je vous propose un échange immédiat. »",2],["« Cette solution vous convient-elle ? »",2]],null),
+O("Remets le traitement de la réclamation dans l'ordre.",["Écouter sans interrompre","Reformuler et s'excuser pour le désagrément","Proposer une solution","Vérifier l'accord du client et le remercier","Assurer le suivi"],null),
+Q("Quelle phrase faut-il ÉVITER face à un client mécontent ?",["« Ce n'est pas de ma faute, c'est le livreur. »","« Je comprends votre agacement. »","« Pouvez-vous me préciser ce qui s'est passé ? »","« Voici ce que je vous propose. »"],"On ne rejette jamais la faute : le client s'adresse à l'entreprise, pas à une personne."),
+VF("Une réclamation bien traitée peut fidéliser le client.",true,"Un client dont le problème est bien réglé fait souvent davantage confiance à l'enseigne."),
+Q("Au « feu rouge », le vendeur doit…",["Laisser parler le client sans l'interrompre","Proposer tout de suite un remboursement","Expliquer que le client a tort","Appeler la sécurité"],"Tant que le client est en colère, il n'est pas prêt à entendre une solution.")
+]},
+/* ---------- 13 ---------- */
+{bloc:"vente",title:"Rédiger un e-mail : AIDA",
+memo:[
+"AIDA : Attention (objet et phrase d'accroche) → Intérêt (présenter l'offre qui concerne le client) → Désir (avantages, preuve, exclusivité) → Action (inciter à agir : lien, bouton, date limite).",
+"Structure : objet clair, formule d'appel (Bonjour Madame…), corps du message (AIDA), formule de politesse, signature (nom, poste, enseigne, coordonnées).",
+"Règles : phrases courtes, zéro faute, jamais de langage SMS, ton adapté au client."],
+ex:[
+T("Que veut dire AIDA ?","{{Attention|Accueil|Achat}}, {{Intérêt|Information|Image}}, {{Désir|Démonstration|Devis}}, {{Action|Argument|Avis}}.",null),
+M("Relie chaque passage de l'e-mail à son étape AIDA.",[["Objet : « Votre cadeau d'anniversaire vous attend ! »","Attention"],["« Découvrez notre nouvelle collection de baskets éco-conçues. »","Intérêt"],["« Légères, confortables et -20 % réservés à nos clients fidèles. »","Désir"],["« Profitez-en avant dimanche : cliquez ici. »","Action"]],null),
+O("Remets les éléments de l'e-mail dans l'ordre.",["Objet","Formule d'appel","Corps du message","Formule de politesse","Signature"],null),
+Q("Quel objet d'e-mail est le plus efficace ?",["« -20 % sur vos marques préférées jusqu'à dimanche »","« Information »","« Mail du magasin »","« slt c nous »"],"L'objet doit attirer l'Attention : précis, avec un bénéfice et une date."),
+VF("On peut écrire en langage SMS dans un e-mail professionnel si le client est jeune.",false,"Un e-mail professionnel reste soigné, quel que soit le client.")
+]},
+/* ---------- 14 ---------- */
+{bloc:"offre",title:"Réceptionner la marchandise",
+memo:[
+"Bon de commande : ce que le magasin a commandé. Bon de livraison : ce que le fournisseur a envoyé (il accompagne la marchandise). Bon de transport (lettre de voiture) : signé avec le transporteur. Facture : ce qu'il faut payer.",
+"Étapes : préparer la réception → accueillir le livreur → contrôle quantitatif en présence du livreur (nombre de colis, état des emballages) → réserves précises et signature → déballage et contrôle qualitatif et détaillé → enregistrement de l'entrée en stock → rangement, étiquetage, mise en rayon.",
+"Réserves : précises, datées, signées sur le bon de transport, puis confirmées au transporteur par lettre recommandée dans les 3 jours (hors jours fériés).",
+"« Sous réserve de déballage » n'a aucune valeur."],
+ex:[
+O("Remets les étapes de la réception dans l'ordre.",["Préparer la zone de réception et le bon de commande","Accueillir le livreur","Compter les colis devant le livreur","Noter les réserves et signer le bon de transport","Déballer et contrôler qualité et quantités détaillées","Enregistrer l'entrée en stock","Ranger, étiqueter, mettre en rayon"],null),
+M("Relie chaque document à son rôle.",[["Bon de commande","Liste ce que le magasin a commandé"],["Bon de livraison","Liste ce que le fournisseur a envoyé"],["Bon de transport","Signé avec le transporteur à l'arrivée"],["Facture","Indique la somme à payer"]],null),
+C("Contrôle quantitatif ou qualitatif ?",["Quantitatif","Qualitatif"],[
+["Compter les colis et les palettes",0],["Vérifier le nombre d'articles par référence",0],["Vérifier l'état des produits (casse, humidité)",1],["Contrôler les dates limites (DLC)",1],["Vérifier que la taille et la couleur sont celles commandées",1],["Peser une palette pour vérifier le poids indiqué",0]],"Quantitatif = combien. Qualitatif = dans quel état et est-ce conforme."),
+Q("Un carton arrive écrasé. Que fais-tu ?",["J'écris une réserve précise sur le bon de transport, devant le livreur","J'écris « sous réserve de déballage »","Je signe sans rien dire et je préviens le manager plus tard","Je jette le carton"],"Une réserve doit décrire précisément le problème : « 1 colis écrasé sur 12, réf. 4521 »."),
+T("Complète.","Les réserves sont confirmées au transporteur par lettre {{recommandée|simple|SMS}} dans un délai de {{3 jours|3 mois|1 an}}.",null),
+VF("Le bon de livraison est établi par le fournisseur et accompagne la marchandise.",true,null)
+]},
+/* ---------- 15 ---------- */
+{bloc:"offre",title:"Stock réel, stock théorique, inventaire, démarque",
+memo:[
+"Stock théorique : ce qu'indique l'ordinateur = stock initial + entrées − sorties (ventes).",
+"Stock réel : ce qui est vraiment présent, compté lors d'un inventaire.",
+"Inventaire : comptage physique des produits. Obligatoire au moins une fois par an. Il peut aussi être permanent ou tournant (un rayon à la fois).",
+"Étapes de l'inventaire : préparer (ranger, former l'équipe) → compter (souvent en binôme) → saisir → comparer au stock théorique → analyser et corriger les écarts.",
+"Démarque = stock théorique − stock réel (en quantité, puis en euros).",
+"Démarque connue : perte identifiée (casse, produits périmés, vol constaté). Démarque inconnue : perte inexpliquée (vol non vu, erreur de saisie, erreur de livraison).",
+"Taux de démarque = démarque en € ÷ chiffre d'affaires × 100."],
+ex:[
+T("Complète la formule.","Stock théorique = stock {{initial|final|réel}} + {{entrées|ventes|pertes}} − {{sorties|réceptions|commandes}}.",null),
+Q("Stock initial : 120 articles. Réception : 80. Ventes : 150. Quel est le stock théorique ?",["50 articles","350 articles","190 articles","40 articles"],"120 + 80 − 150 = 50."),
+Q("Le stock théorique est de 50 articles. L'inventaire en compte 46. Quelle est la démarque ?",["4 articles","96 articles","46 articles","50 articles"],"50 − 46 = 4 articles manquants."),
+Q("Ces 4 articles valent 25 € chacun. Le CA du rayon est de 10 000 €. Quel est le taux de démarque ?",["1 %","4 %","0,25 %","10 %"],"Démarque : 4 × 25 = 100 €. Taux : 100 ÷ 10 000 × 100 = 1 %."),
+C("Démarque connue ou inconnue ?",["Connue","Inconnue"],[
+["Un pot de confiture cassé en rayon et enregistré",0],["Un vol que personne n'a vu",1],["Des yaourts jetés car la DLC est dépassée",0],["Une erreur de saisie en caisse non repérée",1],["Un voleur arrêté par l'agent de sécurité",0],["Une livraison incomplète non vérifiée",1]],"Connue = on sait ce qui s'est passé. Inconnue = on constate l'écart sans l'expliquer."),
+O("Remets les étapes de l'inventaire dans l'ordre.",["Préparer : ranger les rayons, organiser l'équipe","Compter les produits","Saisir les quantités","Comparer avec le stock théorique","Analyser et corriger les écarts"],null),
+VF("L'inventaire physique est obligatoire au moins une fois par an.",true,null)
+]},
+/* ---------- 16 ---------- */
+{bloc:"offre",title:"Règles d'implantation du merchandising",
+memo:[
+"Merchandising : le bon produit, au bon endroit, au bon moment, en bonne quantité, au bon prix.",
+"4 niveaux de présentation, du haut vers le bas : chapeau (réserve, visibilité), yeux (le plus vendeur : nouveautés, forte marge), mains (produits courants, faciles à prendre), sol (produits lourds, volumineux, premiers prix).",
+"Rotation : FIFO / PEPS (premier entré, premier sorti) : les dates les plus courtes devant.",
+"Facing : nombre de produits identiques visibles de face. « Faire le facing » = ramener les produits au bord du rayon, bien alignés.",
+"Produits d'appel (indispensables) au fond pour faire circuler ; achats d'impulsion près des caisses ; produits complémentaires côte à côte.",
+"Linéaire développé = linéaire au sol × nombre de niveaux."],
+ex:[
+O("Classe les niveaux de présentation du haut vers le bas.",["Niveau chapeau","Niveau des yeux","Niveau des mains","Niveau du sol"],null),
+C("À quel niveau places-tu chaque produit ?",["Chapeau","Yeux","Mains","Sol"],[
+["Packs de 6 bouteilles d'eau",3],["Nouveauté à forte marge",1],["Produit courant acheté très souvent",2],["Sac de croquettes de 15 kg",3],["Stock de réserve léger",0],["Produit que la marque veut mettre en avant",1]],"Les yeux vendent le mieux, le sol accueille le lourd, le chapeau sert de réserve visible."),
+T("Complète.","Avec la règle FIFO (ou PEPS), le premier produit {{entré|vendu|commandé}} est le premier {{sorti|rangé|livré}} : on place les dates les plus courtes {{devant|derrière|en réserve}}.",null),
+Q("Une gondole mesure 4 m au sol et compte 5 niveaux. Quel est son linéaire développé ?",["20 m","9 m","4 m","1,25 m"],"4 m × 5 niveaux = 20 m."),
+Q("Pourquoi place-t-on souvent le lait ou l'eau au fond du magasin ?",["Pour faire traverser le magasin et faire voir d'autres produits","Parce qu'ils sont moins chers","Parce qu'il fait plus frais au fond","Au hasard"],"Ce sont des produits d'appel : le client vient forcément les chercher."),
+VF("Les confiseries près des caisses favorisent les achats d'impulsion.",true,null),
+Q("Faire le facing, c'est…",["Ramener les produits au bord du rayon et les aligner face au client","Compter les produits pour l'inventaire","Changer les étiquettes de prix","Nettoyer le sol du rayon"],null)
+]},
+/* ---------- 17 ---------- */
+{bloc:"offre",title:"Facteurs d'ambiance, PLV et ILV",
+memo:[
+"Facteurs d'ambiance (marketing sensoriel) : on joue sur les 5 sens pour donner envie de rester et d'acheter.",
+"Vue : éclairage, couleurs, décor. Ouïe : musique. Odorat : odeurs (pain chaud, parfum de marque). Toucher : matières, température. Goût : dégustations.",
+"PLV (Publicité sur le Lieu de Vente) : attirer l'attention et faire vendre un produit ou une marque : stop-rayon, kakemono, présentoir de marque, totem, affiche promo, écran.",
+"ILV (Information sur le Lieu de Vente) : informer et orienter : panneaux de rayon, signalétique, plan, étiquettes prix, horaires.",
+"Retiens : PLV = fait vendre. ILV = aide à se repérer et à s'informer."],
+ex:[
+C("Quel sens est sollicité ?",["Vue","Ouïe","Odorat","Toucher","Goût"],[
+["Odeur de viennoiseries à l'entrée",2],["Musique douce en fond sonore",1],["Éclairage chaud sur les vêtements",0],["Dégustation de fromage",4],["Tissus à toucher et moquette épaisse",3],["Couleurs de l'enseigne sur les murs",0]],null),
+C("PLV ou ILV ?",["PLV","ILV"],[
+["Stop-rayon « -30 % sur cette marque »",0],["Panneau « Rayon frais » suspendu",1],["Plan du magasin à l'entrée",1],["Présentoir en carton d'une marque de chips",0],["Étiquette prix réglementaire",1],["Kakemono pour la nouvelle console",0],["Panneau des horaires d'ouverture",1]],null),
+M("Relie chaque sigle à son rôle.",[["PLV","Attirer l'attention et faire acheter"],["ILV","Informer et orienter le client"]],null),
+Q("ILV signifie…",["Information sur le Lieu de Vente","Image du Lieu de Vente","Implantation Linéaire Verticale","Innovation Locale de Vente"],null),
+VF("Les facteurs d'ambiance peuvent augmenter le temps passé en magasin.",true,"Un client qui se sent bien reste plus longtemps et achète souvent davantage.")
+]}
+];
+
+/* ================= OUTILS ================= */
+const TYPES={qcm:"QCM",vf:"Vrai ou faux",match:"Relie les flèches",order:"Remets dans l'ordre",trous:"Texte à trous",classer:"Classe les éléments"};
+const HINTS={qcm:"Une seule bonne réponse.",vf:"Choisis Vrai ou Faux.",match:"Clique un élément à gauche, puis son partenaire à droite. Clique à nouveau pour défaire un lien.",order:"Utilise les flèches pour déplacer les étiquettes.",trous:"Choisis le bon mot dans chaque menu.",classer:"Pour chaque ligne, choisis la bonne catégorie."};
+const PAIRC=["--p1","--p2","--p3","--p4","--p5","--p6","--p7"];
+const $=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(k==="html")e.innerHTML=v;else e.setAttribute(k,v)}for(const k of kids.flat()){if(k==null)continue;e.append(k.nodeType?k:document.createTextNode(k))}return e};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fr=n=>(Math.round(n*10)/10).toString().replace(".",",");
+const KEY="mcv-revisions-v1";
+let best={};
+try{best=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){best={}}
+const saveBest=()=>{try{localStorage.setItem(KEY,JSON.stringify(best))}catch(e){}};
+
+/* ================= RENDU DES EXERCICES ================= */
+function buildExercise(ex,onReady){
+  const box=$("div",{class:"ex-body"});
+  let api;
+  if(ex.t==="qcm"||ex.t==="vf"){
+    const opts= ex.t==="vf" ? [{txt:"Vrai",ok:ex.a===true},{txt:"Faux",ok:ex.a===false}]
+                            : shuffle(ex.o.map((txt,i)=>({txt,ok:i===0})));
+    let sel=null;
+    const list=$("div",{class:"opts"+(ex.t==="vf"?" vf":"")});
+    const btns=opts.map((o,i)=>{const b=$("button",{class:"opt",type:"button",onclick:()=>{sel=i;btns.forEach((x,j)=>x.classList.toggle("sel",j===i));onReady(true)}},
+      ex.t==="qcm"?$("span",{class:"k"},"ABCD"[i]):null,$("span",{},o.txt));list.append(b);return b});
+    box.append(list);
+    api={check(){btns.forEach((b,i)=>{b.disabled=true;if(opts[i].ok)b.classList.add("ok");else if(i===sel)b.classList.add("ko")});return opts[sel]?.ok?1:0},
+         correction(){return null}};
+    onReady(false);
+  }
+  else if(ex.t==="match"){
+    const wrap=$("div",{class:"match"});
+    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    const L=$("div",{class:"col l"}), gap=$("div"), R=$("div",{class:"col r"});
+    const rights=shuffle(ex.p.map((p,i)=>({txt:p[1],i})));
+    const pairs=new Map(); // leftIdx -> rightIdx(original)
+    let selL=null, locked=false;
+    const lEls=ex.p.map((p,i)=>$("button",{class:"mi",type:"button",onclick:()=>{if(locked)return;
+        if(pairs.has(i)){pairs.delete(i);selL=null;refresh();return}
+        selL=selL===i?null:i;refresh()}},p[0]));
+    const rEls={};
+    rights.forEach(r=>{rEls[r.i]=$("button",{class:"mi",type:"button",onclick:()=>{if(locked)return;
+        for(const[l,rr]of pairs)if(rr===r.i){pairs.delete(l);if(selL===null){refresh();return}}
+        if(selL===null){refresh();return}
+        pairs.set(selL,r.i);selL=null;refresh()}},r.txt)});
+    L.append(...lEls);R.append(...rights.map(r=>rEls[r.i]));
+    wrap.append(L,gap,R,svg);box.append(wrap);
+    let marks=null;
+    function draw(){
+      svg.innerHTML="";const W=wrap.getBoundingClientRect();
+      for(const[l,r]of pairs){const a=lEls[l].getBoundingClientRect(),b=rEls[r].getBoundingClientRect();
+        const x1=a.right-W.left,y1=a.top+a.height/2-W.top,x2=b.left-W.left,y2=b.top+b.height/2-W.top;
+        const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+        ln.setAttribute("x1",x1);ln.setAttribute("y1",y1);ln.setAttribute("x2",x2);ln.setAttribute("y2",y2);
+        ln.setAttribute("stroke-width","3");ln.setAttribute("stroke-linecap","round");
+        ln.setAttribute("stroke",marks?(marks[l]?"var(--good)":"var(--bad)"):`var(${PAIRC[l%PAIRC.length]})`);
+        if(marks&&!marks[l])ln.setAttribute("stroke-dasharray","6 5");
+        svg.append(ln)}
+    }
+    function refresh(){
+      lEls.forEach((e,i)=>{e.classList.toggle("sel",selL===i);e.classList.toggle("paired",pairs.has(i));e.style.setProperty("--pc",`var(${PAIRC[i%PAIRC.length]})`)});
+      Object.values(rEls).forEach(e=>{e.classList.remove("paired");e.style.removeProperty("--pc")});
+      for(const[l,r]of pairs){rEls[r].classList.add("paired");rEls[r].style.setProperty("--pc",`var(${PAIRC[l%PAIRC.length]})`)}
+      onReady(pairs.size===ex.p.length);draw();
+    }
+    new ResizeObserver(draw).observe(wrap);
+    requestAnimationFrame(refresh);
+    api={check(){locked=true;marks={};let ok=0;
+        ex.p.forEach((_,i)=>{const good=pairs.get(i)===i;marks[i]=good;if(good)ok++;lEls[i].classList.add(good?"ok":"ko")});
+        draw();return ok/ex.p.length},
+      correction(){const wrong=ex.p.filter((_,i)=>!marks[i]);if(!wrong.length)return null;
+        return $("ol",{},wrong.map(p=>$("li",{},p[0]," → ",$("b",{},p[1]))))}};
+    onReady(false);
+  }
+  else if(ex.t==="order"){
+    let cur=shuffle(ex.items.map((t,i)=>i));
+    let guard=0;while(cur.every((v,i)=>v===i)&&guard++<10)cur=shuffle(cur);
+    const ol=$("ol",{class:"order"});let locked=false;
+    function render(){ol.innerHTML="";cur.forEach((v,pos)=>{
+      const up=$("button",{type:"button","aria-label":"Monter",onclick:()=>{[cur[pos-1],cur[pos]]=[cur[pos],cur[pos-1]];render()}},"↑");
+      const dn=$("button",{type:"button","aria-label":"Descendre",onclick:()=>{[cur[pos+1],cur[pos]]=[cur[pos],cur[pos+1]];render()}},"↓");
+      up.disabled=locked||pos===0;dn.disabled=locked||pos===cur.length-1;
+      const li=$("li",{},$("span",{},ex.items[v]),$("div",{class:"mv"},up,dn));
+      if(locked)li.classList.add(v===pos?"ok":"ko");ol.append(li)})}
+    render();box.append(ol);onReady(true);
+    api={check(){locked=true;render();return cur.filter((v,i)=>v===i).length/cur.length},
+      correction(){if(cur.every((v,i)=>v===i))return null;return $("ol",{},ex.items.map(t=>$("li",{},t)))}};
+  }
+  else if(ex.t==="trous"){
+    const p=$("p",{class:"trous"});const sels=[];
+    ex.txt.split(/(\{\{[^}]+\}\})/).forEach(part=>{
+      const m=part.match(/^\{\{(.+)\}\}$/);
+      if(!m){p.append(part);return}
+      const choices=m[1].split("|");const s=$("select",{"aria-label":"Mot manquant",id:"t"+sels.length});
+      s.append($("option",{value:""},"…"));shuffle(choices).forEach(c=>s.append($("option",{value:c},c)));
+      s.addEventListener("change",()=>onReady(sels.every(x=>x.el.value)));
+      sels.push({el:s,good:choices[0]});p.append(s)});
+    box.append(p);onReady(false);
+    api={check(){let ok=0;sels.forEach(s=>{s.el.disabled=true;const g=s.el.value===s.good;if(g)ok++;s.el.classList.add(g?"ok":"ko");
+        if(!g)s.el.after($("span",{class:"sol"},"✓ "+s.good))});return ok/sels.length},correction(){return null}};
+  }
+  else if(ex.t==="classer"){
+    const items=shuffle(ex.items.map(([txt,c])=>({txt,c,sel:null})));
+    const wrap=$("div",{class:"cls"});
+    const rows=items.map(it=>{
+      const seg=$("div",{class:"seg"});
+      const bs=ex.cats.map((cat,ci)=>{const b=$("button",{type:"button",onclick:()=>{it.sel=ci;bs.forEach((x,j)=>x.classList.toggle("sel",j===ci));onReady(items.every(i=>i.sel!==null))}},cat);seg.append(b);return b});
+      const row=$("div",{class:"cls-row"},$("div",{class:"it"},it.txt),seg);
+      wrap.append(row);return{row,bs,seg,it}});
+    box.append(wrap);onReady(false);
+    api={check(){let ok=0;rows.forEach(r=>{r.bs.forEach(b=>b.disabled=true);const g=r.it.sel===r.it.c;if(g)ok++;r.row.classList.add(g?"ok":"ko");
+        if(!g)r.row.append($("div",{class:"fix"},"Bonne réponse : "+ex.cats[r.it.c]))});return ok/items.length},correction(){return null}};
+  }
+  return {el:box,api};
+}
+
+/* ================= VUES ================= */
+const app=document.getElementById("app");
+let run=null;
+
+function hub(){
+  run=null;app.innerHTML="";window.scrollTo(0,0);
+  const done=CH.filter((c,i)=>best[i]!=null);
+  const avg=done.length?CH.reduce((s,c,i)=>s+(best[i]??0),0)/done.length:null;
+  const nbEx=CH.reduce((s,c)=>s+c.ex.length,0);
+  app.append($("header",{class:"hero"},
+    $("span",{class:"eyebrow"},"Bac Pro MCV · Terminale · Révisions de vacances"),
+    $("h1",{html:"Tout le programme,<br><span>rayon par rayon</span>"}),
+    $("p",{},`${CH.length} chapitres, ${nbEx} exercices. Commence par lire « L'essentiel » de chaque chapitre, puis fais les exercices. Ta meilleure note sur 20 est gardée sur cet appareil.`),
+    $("div",{class:"stats"},
+      $("span",{},$("b",{},`${done.length}/${CH.length}`)," chapitres faits"),
+      $("span",{},$("b",{},avg==null?"—":fr(avg)+"/20")," moyenne")),
+    $("div",{class:"howto"},$("a",{class:"chip",href:"index.html",style:"color:var(--accent);font-weight:700"},"← Accueil des révisions"),$("a",{class:"chip",href:"partie2.html",style:"color:var(--accent);font-weight:700"},"Partie 2 →"),Object.values(TYPES).map(t=>$("span",{class:"chip"},t)))));
+  BLOCS.forEach(b=>{
+    const g=$("div",{class:"grid"});
+    CH.forEach((c,i)=>{if(c.bloc!==b.id)return;
+      const sc=best[i];
+      g.append($("button",{class:"card"+(sc!=null?" done":""),type:"button",onclick:()=>start(i)},
+        $("span",{class:"num"},"Chapitre "+String(i+1).padStart(2,"0")),
+        $("h3",{},c.title),
+        $("div",{class:"meta"},$("span",{},c.ex.length+" exercices"),
+          $("span",{class:"price"+(sc==null?" none":"")},sc==null?"à faire":fr(sc)+"/20"))))});
+    app.append($("section",{class:"bloc"},$("h2",{},b.name),$("span",{class:"eyebrow"},b.sub),g));
+  });
+  app.append($("section",{class:"final"},
+    $("div",{},$("h2",{},"Défi final"),$("p",{},"20 exercices tirés au hasard dans tout le programme.")),
+    $("button",{class:"btn tag",type:"button",onclick:()=>start("final")},"Lancer le défi")));
+}
+
+function start(which){
+  let list,title,memo=null;
+  if(which==="final"){
+    list=shuffle(CH.flatMap((c,ci)=>c.ex.map(e=>({...e,from:c.title})))).slice(0,20);title="Défi final";
+  }else{list=CH[which].ex;title=CH[which].title;memo=CH[which].memo}
+  run={which,title,memo,list,idx:0,scores:[]};
+  show();
+}
+
+function show(){
+  app.innerHTML="";window.scrollTo(0,0);
+  const {list,idx}=run;const ex=list[idx];
+  app.append($("div",{class:"top"},
+    $("button",{class:"back",type:"button",onclick:hub},"← Sommaire"),
+    $("span",{class:"eyebrow"},`Exercice ${idx+1} / ${list.length}`)));
+  const bar=$("div",{class:"bar"},$("i",{}));bar.firstChild.style.width=(idx/list.length*100)+"%";
+  app.append($("h2",{style:"font-size:28px;margin-bottom:14px"},run.title),bar);
+  if(run.memo){
+    const d=$("details",{class:"memo"},$("summary",{},"L'essentiel à retenir"),$("ul",{},run.memo.map(m=>$("li",{},m))));
+    if(idx===0)d.open=true;app.append(d);
+  }
+  const checkBtn=$("button",{class:"btn",type:"button"},"Vérifier");
+  const built=buildExercise(ex,ready=>{checkBtn.disabled=!ready});
+  const fbSlot=$("div");
+  const actions=$("div",{class:"actions"},checkBtn);
+  const card=$("article",{class:"ex"},
+    $("div",{class:"ex-head"},$("span",{class:"ex-type"},TYPES[ex.t]),
+      ex.from?$("span",{class:"eyebrow"},ex.from):null,
+      $("div",{class:"ex-q"},ex.q),$("div",{class:"ex-hint"},HINTS[ex.t])),
+    built.el,fbSlot,actions);
+  app.append(card);
+  checkBtn.onclick=()=>{
+    const s=built.api.check();run.scores.push(s);
+    const cls=s===1?"ok":s>=.5?"mid":"ko";
+    const head=s===1?"Bravo, c'est juste !":s>=.5?`Presque : ${Math.round(s*100)} % de bonnes réponses.`:"Ce n'est pas encore ça.";
+    const corr=built.api.correction();
+    fbSlot.append($("div",{class:"fb "+cls},$("strong",{},head),
+      corr?$("div",{},"La bonne réponse :",corr):null,
+      ex.ex?$("div",{},ex.ex):null));
+    checkBtn.remove();
+    const last=run.idx===run.list.length-1;
+    actions.append($("button",{class:"btn",type:"button",onclick:()=>{if(last)result();else{run.idx++;show()}}},last?"Voir ma note":"Suivant →"));
+    actions.lastChild.focus({preventScroll:true});
+    fbSlot.scrollIntoView({behavior:"smooth",block:"nearest"});
+  };
+}
+
+function result(){
+  app.innerHTML="";window.scrollTo(0,0);
+  const total=run.scores.reduce((a,b)=>a+b,0);
+  const note=total/run.list.length*20;
+  if(run.which!=="final"){const prev=best[run.which];if(prev==null||note>prev){best[run.which]=Math.round(note*10)/10;saveBest()}}
+  const msg=note>=16?"Excellent ! Cette notion est acquise.":note>=12?"Bien ! Relis l'essentiel et refais les exercices ratés.":note>=8?"C'est un début. Relis l'essentiel, puis recommence.":"Relis bien l'essentiel avant de recommencer. Tu vas y arriver !";
+  const d=new Date();
+  const t=$("div",{class:"ticket"},
+    $("div",{class:"c"},$("b",{},"MAGASIN DES RÉVISIONS"),$("br"),"Terminale Bac Pro MCV"),
+    $("div",{class:"c",style:"color:var(--muted);margin-top:4px"},d.toLocaleDateString("fr-FR")+"  "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})),
+    $("hr"),
+    $("div",{},run.title.toUpperCase()),
+    $("hr"),
+    run.list.map((e,i)=>$("div",{class:"row"},$("span",{},String(i+1).padStart(2,"0")+" "+TYPES[e.t]),$("span",{},fr(run.scores[i])+" pt"))),
+    $("hr"),
+    $("div",{class:"row"},$("span",{},"Points"),$("span",{},fr(total)+" / "+run.list.length)),
+    $("div",{class:"row tot"},$("span",{},"NOTE"),$("span",{},fr(note)+"/20")),
+    $("hr"),
+    $("div",{class:"msg"},msg),
+    $("div",{class:"c",style:"margin-top:10px;color:var(--muted)"},"Merci de votre visite, à bientôt !"));
+  app.append($("div",{class:"top"},$("button",{class:"back",type:"button",onclick:hub},"← Sommaire"),$("span")),t,
+    $("div",{class:"res-actions"},
+      $("button",{class:"btn",type:"button",onclick:()=>start(run.which)},"Recommencer"),
+      $("button",{class:"btn ghost",type:"button",onclick:hub},"Retour au sommaire")));
+}
+
+hub();
+</script>
+
+</body>
+</html>
